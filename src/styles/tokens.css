@@ -1,0 +1,141 @@
+/* Rafiki Tax design tokens (Light mode).
+   Names and values mirror the Figma variables in 01 Tokens.
+   Change a value here and it spreads everywhere. */
+:root {
+  /* Surfaces */
+  --rf-background-default: #f9faf0;
+  --rf-surface-default: #ffffff;
+  --rf-surface-low: #f3f4ea;
+  --rf-surface-high: #e2e3da;
+  --rf-surface-brand: #003d9b;
+  --rf-surface-brand-subtle: #dae2ff;
+  --rf-surface-accent-soft: #f6f9cb;
+  --rf-surface-container: #ffffff;
+  --rf-surface-header-glass: rgba(255, 255, 255, 0.8);
+  --rf-surface-scrim: rgba(255, 255, 255, 0.5);
+
+  /* Borders */
+  --rf-border-default: #eeefe5;
+  --rf-border-container: #e2e3da;
+  --rf-border-strong: #5a5d6b;
+  --rf-border-accent: #5d6300;
+
+  /* Text */
+  --rf-text-primary: #1a1c17;
+  --rf-text-secondary: #434654;
+  --rf-text-tertiary: #5a5d6b;
+  --rf-text-inverse: #ffffff;
+  --rf-text-on-brand-muted: #dae2ff;
+  --rf-text-link: #003d9b;
+  --rf-text-brand: #003d9b;
+  --rf-text-accent: #5d6300;
+  --rf-text-danger: #ba1a1a;
+  --rf-text-info: #003d9b;
+  --rf-text-on-accent-soft: #1a1c17;
+  --rf-nav-active-text: #5d6300;
+
+  /* Inputs */
+  --rf-field-background: #f3f4ea;
+  --rf-input-border: #7a7d8a;
+  --rf-input-border-filled: #0b0c0a;
+  --rf-input-border-error: #ba1a1a;
+  --rf-input-border-focus: #003d9b;
+  --rf-input-text: #0b0c0a;
+  --rf-input-placeholder: #696c7a;
+  --rf-input-readonly: #ebece2;
+
+  /* Controls */
+  --rf-control-selected: #003d9b;
+  --rf-control-on-selected: #ffffff;
+
+  /* Actions */
+  --rf-action-primary: #003d9b;
+  --rf-action-primary-text: #ffffff;
+  --rf-action-primary-hover: #002f7a;
+  --rf-action-primary-disabled: #e2e3da;
+  --rf-state-disabled-text: #9ca1b8;
+  --rf-action-secondary: #c3c6d6;
+  --rf-action-secondary-text: #1a1c17;
+  --rf-action-tertiary-border: #5a5d6b;
+  --rf-action-tertiary-text: #1a1c17;
+  --rf-action-olive: #5d6300;
+  --rf-action-olive-text: #ffffff;
+  --rf-action-accent: #e1ec51;
+  --rf-action-accent-text: #4a4f00;
+  --rf-action-danger: #ba1a1a;
+  --rf-action-danger-text: #ffffff;
+
+  /* Status */
+  --rf-status-validated-bg: #89fa9b;
+  --rf-status-validated-text: #005320;
+  --rf-status-validated-border: #005320;
+  --rf-status-pending-bg: #dae2ff;
+  --rf-status-pending-border: #003d9b;
+  --rf-status-pending-text: #003385;
+  --rf-status-warning-bg: #ffeec2;
+  --rf-status-warning-text: #4d2e00;
+  --rf-status-warning-border: #8a5300;
+  --rf-status-warning-icon: #8a5300;
+  --rf-status-draft-bg: #eeefe5;
+  --rf-status-danger-bg: #ffdad6;
+
+  /* Spacing */
+  --rf-spacing-2xs: 2px;
+  --rf-spacing-xs: 4px;
+  --rf-spacing-sm: 8px;
+  --rf-spacing-ms: 12px;
+  --rf-spacing-md: 16px;
+  --rf-spacing-lg: 16px;
+  --rf-spacing-xl: 24px;
+  --rf-spacing-2xl: 32px;
+  --rf-spacing-3xl: 48px;
+
+  /* Radius */
+  --rf-radius-xs: 6px;
+  --rf-radius-sm: 8px;
+  --rf-radius-ms: 12px;
+  --rf-radius-md: 16px;
+  --rf-radius-lg: 32px;
+  --rf-radius-xl: 48px;
+  --rf-radius-card: 32px;
+  --rf-radius-pill: 9999px;
+
+  /* Layout (desktop grid: 12 col, 32 gutter, 32 margin at 1440) */
+  --rf-grid-columns: 12;
+  --rf-grid-gutter: 32px;
+  --rf-grid-margin: 32px;
+  --rf-sidebar-width: 256px;
+  --rf-header-height: 64px;
+  --rf-layout-center-small: 437px;
+  --rf-layout-center-medium: 672px;
+  --rf-layout-center-large: 907px;
+  --rf-layout-aside: 352px;
+  --rf-layout-panel: 320px;
+  --rf-content-max: 1120px; /* content width at 1440; centred on wider screens */
+
+  /* Type */
+  --rf-font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --rf-font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --rf-font-mono: "Roboto Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Effects */
+  --rf-shadow-float: 0 12px 32px rgba(26, 28, 23, 0.12), 0 2px 6px rgba(26, 28, 23, 0.08);
+  --rf-focus-ring: 0 0 0 2px var(--rf-surface-default), 0 0 0 4px var(--rf-input-border-focus);
+}
+
+/* Added for Home (Module 2) */
+:root {
+  --rf-surface-mid: #eeefe5;
+  --rf-surface-accent-strong: #5d6300;
+  --rf-badge-blue-bg: #003d9b;
+  --rf-badge-blue-text: #ffffff;
+  --rf-status-draft-text: #434654;
+  --rf-status-draft-border: #5a5d6b;
+  --rf-status-rejected-bg: #ffdad6;
+  --rf-status-rejected-border: #ba1a1a;
+  --rf-status-rejected-text: #93000a;
+  --rf-chart-series-1: #003d9b;
+  --rf-table-row-border: #eeefe5;
+  --rf-shadow-floating: 0 4px 12px -2px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --rf-shadow-side: -16px 0 40px -8px rgba(0, 0, 0, 0.2), -2px 0 6px rgba(0, 0, 0, 0.15);
+}

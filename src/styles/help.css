@@ -1,0 +1,35 @@
+/* Help: matches Figma 08. Help (Focus shell, Layout Full, Align Top) */
+.help { display: grid; grid-template-columns: 248px minmax(0, 840px) 200px; gap: var(--rf-spacing-xxl, 40px); align-items: start; max-width: 1376px; margin: 0 auto; }
+.help-menu { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--rf-spacing-sm); padding-top: var(--rf-spacing-xs); }
+.help-group__btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--rf-spacing-sm); min-height: 36px; padding: 0 var(--rf-spacing-xs); background: none; border: 0; border-radius: var(--rf-radius-sm); cursor: pointer; text-align: left; color: var(--rf-text-primary); }
+.help-group__btn:hover { background: var(--rf-surface-low); }
+.help-group__btn:focus-visible, .help-item:focus-visible, .help-toc__link:focus-visible, .help-link:focus-visible { outline: none; box-shadow: var(--rf-focus-ring); }
+.help-group__list { list-style: none; margin: var(--rf-spacing-xs) 0 var(--rf-spacing-sm) var(--rf-spacing-sm); padding: 0 0 0 var(--rf-spacing-xs); border-left: 1px solid var(--rf-border-default); display: flex; flex-direction: column; gap: 2px; }
+.help-item { position: relative; display: block; padding: var(--rf-spacing-xs) var(--rf-spacing-ms) var(--rf-spacing-xs) 20px; border-radius: var(--rf-radius-sm); color: var(--rf-text-secondary); text-decoration: none; }
+.help-item:hover { background: var(--rf-surface-low); color: var(--rf-text-primary); }
+.help-item--active, .help-item--active:hover { background: var(--rf-surface-accent-soft); color: var(--rf-text-on-accent-soft); font-weight: 600; }
+.help-item--active::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: var(--rf-text-on-accent-soft); }
+.help-article { display: flex; flex-direction: column; gap: var(--rf-spacing-lg); padding: var(--rf-spacing-xl); background: var(--rf-surface-default); border: 1px solid var(--rf-border-container); border-radius: var(--rf-radius-card); }
+.help-article__head { display: flex; flex-direction: column; gap: var(--rf-spacing-sm); }
+.help-article__title { font-family: var(--rf-font-display); font-weight: 600; font-size: 24px; line-height: 32px; margin: 0; }
+.help-article__intro { font-size: 16px; line-height: 24px; margin: 0; }
+.help-rule { border: 0; border-top: 1px solid var(--rf-border-default); margin: var(--rf-spacing-xs) 0; width: 100%; }
+.help-sec { display: flex; flex-direction: column; gap: var(--rf-spacing-ms); scroll-margin-top: var(--rf-spacing-lg); }
+.help-sec__h { font-family: var(--rf-font-display); font-weight: 600; font-size: 18px; line-height: 28px; margin: 0; }
+.help-sec__p { font-size: 16px; line-height: 24px; margin: 0; }
+.help-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--rf-spacing-sm); font-size: 16px; line-height: 24px; color: var(--rf-text-primary); }
+.help-list li { display: flex; gap: var(--rf-spacing-ms); align-items: flex-start; }
+.help-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rf-text-primary); margin: 9px 7px 0 6px; flex-shrink: 0; }
+.help-step { width: 24px; height: 24px; border-radius: 50%; background: var(--rf-surface-accent-soft); color: var(--rf-text-on-accent-soft); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.help-foot { display: flex; flex-direction: column; gap: var(--rf-spacing-ms); padding-top: var(--rf-spacing-ms); border-top: 1px solid var(--rf-border-default); }
+.help-ask { display: flex; align-items: center; justify-content: space-between; gap: var(--rf-spacing-lg); }
+.help-ask p { margin: 0; }
+.help-pager { display: flex; justify-content: space-between; gap: var(--rf-spacing-lg); }
+.help-link { display: inline-flex; align-items: center; gap: var(--rf-spacing-xs); color: var(--rf-text-link); text-decoration: none; }
+.help-link:hover { text-decoration: underline; }
+.help-toc { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--rf-spacing-ms); padding-top: var(--rf-spacing-xs); }
+.help-toc ul { list-style: none; margin: 0; padding: 0 0 0 var(--rf-spacing-ms); border-left: 1px solid var(--rf-border-default); display: flex; flex-direction: column; gap: var(--rf-spacing-sm); }
+.help-toc__link { color: var(--rf-text-secondary); text-decoration: none; }
+.help-toc__link:hover { color: var(--rf-text-primary); }
+.help-toc__link--active { color: var(--rf-text-primary); font-weight: 600; }
+.app-header__help--on { color: var(--rf-text-primary); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
