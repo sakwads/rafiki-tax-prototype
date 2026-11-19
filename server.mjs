@@ -10,7 +10,7 @@ const port = Number(process.env.PORT) || 3000;
 const types = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
   ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg",
-  ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
+  ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8", ".webmanifest": "application/manifest+json",
 };
 
 createServer(async (req, res) => {
@@ -27,7 +27,7 @@ createServer(async (req, res) => {
     const ext = extname(file);
     res.writeHead(200, {
       "content-type": types[ext] || "application/octet-stream",
-      "cache-control": ext === ".html" ? "no-cache" : "public, max-age=300",
+      "cache-control": ext === ".html" || file.endsWith("sw.js") || ext === ".webmanifest" ? "no-cache" : "public, max-age=300",
       "x-content-type-options": "nosniff",
     });
     res.end(body);

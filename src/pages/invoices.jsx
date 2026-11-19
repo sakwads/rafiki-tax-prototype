@@ -4,7 +4,7 @@ import { AgentSuggestion, Drawer, Facts, ksh } from "../components/patterns.jsx"
 import { Modal } from "../components/table.jsx";
 import { db } from "../db.js";
 import { navigate, query } from "../router.js";
-import { APP_PIN, ATIENO, LINE, PAYMENT, SELLER, SOURCES, SOURCE_PANEL } from "../data/module4.js";
+import { APP_PIN, ATIENO, JUMA, LINE, PAYMENT, SELLER, SOURCES, SOURCE_PANEL } from "../data/module4.js";
 
 /* ───────── Store helpers ───────── */
 export const m4 = () => db.get("m4") || {};
@@ -28,6 +28,8 @@ export function startDraft(source, tpl) {
     return { source: tpl.source || "repeat", stage: "ready", seller: tpl.seller, sellerFrom: "last", pin: tpl.pin || "", pinFrom: tpl.pin ? "last" : null,
       date: "14/11/2026", lines, answer: null, feedback: null, dismissed: false, chat: [], label: tpl.title };
   }
+  if (source === "juma") return { source: "chat", vat: true, stage: "checking", seller: JUMA.name, sellerFrom: "message", pin: JUMA.pin, pinFrom: "message",
+    date: JUMA.date, lines: JUMA.lines.map((l) => ({ ...l })), answer: null, feedback: null, dismissed: false, chat: [] };
   if (source === "repeat") return startDraft(null, { title: "Repeat last invoice", seller: SELLER.name, pin: SELLER.pin, lines: ["sukuma", "nyanya", "vitunguu"] });
   return { source, stage: "reading", seller: SELLER.name, sellerFrom: "message", pin: "", pinFrom: null, date: "14/11/2026",
     lines: [], answer: null, feedback: null, dismissed: false, chat: [] };
@@ -178,6 +180,7 @@ export function BuilderPage() {
     return () => clearTimeout(t);
   }, [d?.stage]);
 
+  if (d?.vat) return <VatBuilder d={d} />;
   if (!d) {
     return (
       <div className="ib-center" style={{ marginTop: 32 }}>
@@ -231,6 +234,149 @@ export function BuilderPage() {
           <p className="t-body3 c-secondary">{SOURCE_PANEL[d.source].meta}</p>
           <div className="ib-bubble"><p className="t-body1 c-primary">{SOURCE_PANEL[d.source].text || "Sawa, mboga ya leo ni 2,500: sukuma, nyanya na vitunguu. Asante, Mama Wanjiku."}</p></div>
           <p className="t-body3 c-secondary">This is the original, exactly as it arrived. Rafiki never changes it.</p>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* ═════════ Flow 8: VAT-registered seller ═════════
+   KRA blocks buyer-initiated invoices for VAT-registered sellers. Rafiki checks the seller's PIN on eTIMS,
+   blocks sending and prepares a message asking the seller for a normal eTIMS invoice instead. */
+function VatBuilder({ d }) {
+  const [asking, setAsking] = useState(false);
+  const [why, setWhy] = useState(false);
+  const [trace, setTrace] = useState(false);
+  const [msg, setMsg] = useState("");
+  const checking = d.stage === "checking";
+  useEffect(() => {
+    if (!checking) return;
+    const t = setTimeout(() => { if (getDraft()?.stage === "checking") patchDraft({ stage: "blocked" }); }, 2200);
+    return () => clearTimeout(t);
+  }, [checking]);
+
+  function discard() { setDraft(null); toast("Draft discarded. Nothing was sent."); navigate("/invoices"); }
+  function sendAsk() {
+    const pc = db.collection("purchases");
+    if (!pc.get("exp_juma")) pc.insert({ _id: "exp_juma", seller: JUMA.name, invoiceNo: "", date: "2026-11-16", amount: 4850, source: "WhatsApp message", payment: "M-Pesa", status: "at-risk",
+      pin: JUMA.pin, supplierId: "sup_juma", ref: "No eTIMS invoice", vat: 668.97, dateLabel: "16 Nov 2026",
+      actions: [["secondary", "Mark as declared", "declare"], ["primary", "Ask seller for invoice", "ask"]],
+      records: [{ icon: "brand-whatsapp", title: "Message from Juma Building Supplies", amount: 4850, sub: "WhatsApp · Mon 16 Nov 2026", status: "validated" },
+        { icon: "wallet", title: "M-Pesa to till 552190", amount: 4850, sub: "Till payment · 16 Nov 2026", status: "validated" },
+        { icon: "file-invoice", title: "eTIMS invoice from Juma Building Supplies", sub: "Asked for on 19 Nov · not received yet", status: "at-risk", missing: true }],
+      note: "Juma Building Supplies is VAT-registered, so a buyer-initiated invoice isn't allowed. You asked them for an eTIMS invoice on 19 Nov.",
+      suggestion: { tone: "neutral", title: "Waiting for Juma's eTIMS invoice", body: "You asked on WhatsApp. Once their eTIMS invoice with your PIN arrives, this purchase is covered.",
+        label: "Next step", value: "Wait for the eTIMS invoice", readOnly: true, checked: "Checked on eTIMS",
+        why: "VAT-registered sellers must issue the eTIMS invoice themselves. KRA does not accept a buyer-initiated invoice from them." } });
+    const sc = db.collection("suppliers"); const sup = sc.get("sup_juma");
+    if (sup) sc.update("sup_juma", { purchase: "exp_juma", history: [{ icon: "brand-whatsapp", title: "Asked for an eTIMS invoice", sub: "WhatsApp message prepared · KSh 4,850.00", date: "19 Nov" }, ...(sup.history || [])] });
+    setAsking(false); setDraft(null);
+    toast("Message ready in WhatsApp. Juma's purchase stays At risk until their eTIMS invoice arrives.", "brand-whatsapp", { tone: "success", duration: 8000 });
+    navigate("/purchases/exp_juma");
+  }
+  const sum = total(d.lines);
+  return (
+    <div className="ib-builder">
+      <aside className="ib-panel ib-panel--side" aria-label="Source">
+        <TextLink size={3} onClick={() => navigate("/invoices/new?source=chat")}><Icon name="arrow-left" size={16} />Back to source choice</TextLink>
+        <div className="ib-panel__head"><h2 className="t-h6 c-primary">Source</h2><p className="t-body3 c-secondary">What this draft was read from, in the original words.</p></div>
+        <div className="ib-src">
+          <div className="ib-src__head"><Icon name="message-circle" size={24} /><span><span className="t-semi2 c-primary">WhatsApp message</span><span className="t-body3 c-secondary">{JUMA.forwarded}</span></span></div>
+          <p className="ib-src__chip t-body3 c-secondary"><Icon name="message-circle" size={20} />WhatsApp chat</p>
+          <div className="ib-bubble"><p className="t-semi2 c-primary">{JUMA.name}</p><p className="t-body2 c-primary">{JUMA.message}</p><p className="ib-bubble__time t-body3 c-secondary">{JUMA.time}</p></div>
+          <div className="ib-src__foot"><p className="t-body3 c-secondary">Original wording is kept as the source.</p></div>
+        </div>
+        <div><Button type="tertiary" size="sm" onClick={() => { setDraft(null); navigate("/invoices/new"); }}>Use a different source</Button></div>
+      </aside>
+
+      <div className="ib-vat-col">
+        {!checking && (
+          <Alert tone="danger" title={`${JUMA.name} is VAT-registered`}>KRA blocks buyer-initiated invoices for VAT-registered sellers. Ask them for a normal eTIMS invoice with your PIN on it.</Alert>
+        )}
+        <section className="ib-draft" aria-label="Draft invoice" aria-busy={checking || undefined}>
+          <div className="ib-draft__head"><h1 className="t-h5 c-primary">Draft invoice</h1><StatusBadge status="draft" label={checking ? "Draft" : "Blocked"} /></div>
+          <p className="t-body3 c-secondary">{checking ? "Buyer-initiated. Rafiki is reading your message and checking the seller on eTIMS before anything can be sent." : "Buyer-initiated invoices can't be made for this seller. Nothing has been sent."}</p>
+          <div className="ib-fields">
+            <div className="ib-field">
+              <div className="ib-field__tags"><OriginTag kind="rafiki" /></div>
+              <label className="ib-field__label t-overline c-tertiary" htmlFor="vat-seller">Seller</label>
+              <div className="input input--filled ib-input"><input id="vat-seller" className="input__control" value={d.seller} readOnly /></div>
+              <p className="t-body3 c-secondary">Read from the message.</p>
+            </div>
+            <div className="ib-field">
+              <div className="ib-field__tags">{checking ? <OriginTag kind="rafiki" /> : <span className="ib-tag ib-tag--needs t-body3"><Icon name="alert-circle" size={16} />VAT-registered</span>}</div>
+              <label className="ib-field__label t-overline c-tertiary" htmlFor="vat-pin">Seller KRA PIN</label>
+              <div className="input input--filled ib-input"><input id="vat-pin" className="input__control" value={d.pin} readOnly /></div>
+              <p className="t-body3 c-secondary">{checking ? "Read from the message. Checking it on eTIMS." : "Read from the message. eTIMS shows this PIN as VAT-registered."}</p>
+            </div>
+          </div>
+          <div className="ib-field">
+            <label className="ib-field__label t-overline c-tertiary" htmlFor="vat-date">Invoice date</label>
+            <div className="input input--filled ib-input"><input id="vat-date" className="input__control" value={d.date} readOnly /><Icon name="calendar" size={20} /></div>
+            <p className="t-body3 c-secondary">Read from the message</p>
+          </div>
+          <div className="ib-items">
+            <p className="t-semi2 c-primary">Items</p>
+            <ul className="ib-lines">
+              {d.lines.map((l) => (
+                <li key={l.id} className="ib-line"><span className="ib-line__text"><span className="t-semi2 c-primary">{l.name}</span><span className="t-body3 c-secondary">{l.qty} {l.unit} × {ksh(l.price)}</span></span>
+                  <span className="ib-line__end"><OriginTag kind="rafiki" /><span className="ib-line__amt">{ksh(lineSum(l))}</span></span></li>
+              ))}
+            </ul>
+          </div>
+          <dl className="ib-totals">
+            <div><dt className="t-body2 c-secondary">Subtotal</dt><dd className="t-body1 c-primary">{ksh(sum)}</dd></div>
+            <div><dt className="t-body2 c-secondary">VAT</dt><dd className="t-body2 c-primary">{checking ? "None on buyer-initiated invoices" : "Not possible: seller is VAT-registered"}</dd></div>
+            <div className="ib-totals__total"><dt className="t-semi2 c-primary">Total</dt><dd className="t-figure-ib c-primary">{ksh(sum)}</dd></div>
+          </dl>
+          <p className="t-body3 c-warning">{checking ? "Checking the seller's PIN on eTIMS. Nothing can be sent until the check is done." : `Can't send. Ask ${JUMA.name} for an eTIMS invoice instead.`}</p>
+          <div className="ib-actions">
+            {checking ? <Button type="secondary" className="btn--lg" onClick={() => { saveAsDraft(getDraft(), "Juma Building Supplies, WhatsApp message, 16 Nov"); toast("Draft saved. Find it on the Invoice builder page."); }}>Save draft</Button>
+              : <Button type="secondary" className="btn--lg" onClick={discard}>Discard draft</Button>}
+            <Button className="btn--lg" disabled>Review and send</Button>
+          </div>
+        </section>
+      </div>
+
+      <aside className="ib-panel ib-panel--side ib-agent" aria-label="Rafiki">
+        <div className="ib-panel__head"><h2 className="t-h6 c-primary">Rafiki</h2><p className="t-body3 c-secondary">Suggestions for this draft. You decide every one.</p></div>
+        <button type="button" className="ib-trace t-body3 c-secondary" aria-expanded={trace} onClick={() => setTrace(!trace)}>
+          {checking ? <Spinner size={20} /> : <Icon name="circle-check" size={20} />}<span>{checking ? `Checking ${JUMA.pin} on eTIMS…` : "Read your message and checked the PIN on eTIMS"}</span><Icon name="chevron-down" size={20} />
+        </button>
+        {trace && <ul className="ib-trace__steps t-body3 c-secondary"><li>Read the seller, the PIN and 2 items from the message</li><li>{checking ? "Checking the PIN on eTIMS" : `eTIMS: ${JUMA.pin} is VAT-registered`}</li></ul>}
+        {!checking && (
+          <section className="suggest suggest--neutral" aria-label="Rafiki suggests: Ask for an eTIMS invoice instead">
+            <div className="suggest__header"><Icon name="sparkles-2" size={24} /><p className="suggest__title t-semi2 c-primary">Ask for an eTIMS invoice instead</p>
+              <StatusBadge status="validated" outline label="Checked on eTIMS" /></div>
+            <p className="t-body2 c-secondary">{JUMA.name} is VAT-registered, so KRA won't accept a buyer-initiated invoice. Their own eTIMS invoice with your PIN is what counts for this expense.</p>
+            <div className="change-box"><p className="t-body3 c-secondary">Next step</p><p className="t-semi2 c-primary">Ask {JUMA.short} for an eTIMS invoice</p></div>
+            {why && <p className="t-body3 c-secondary">eTIMS lists {JUMA.pin} as registered for VAT. VAT-registered sellers must issue the eTIMS invoice themselves. This block can't be dismissed.</p>}
+            <div className="suggest__footer"><TextLink size={3} aria-expanded={why} onClick={() => setWhy(!why)}>Why?</TextLink><Button size="sm" onClick={() => setAsking(true)}>Write message</Button></div>
+          </section>
+        )}
+        <div className="ib-compose">
+          <textarea className="t-body2" rows={3} aria-label="Tell Rafiki what you bought" placeholder={'Tell Rafiki what you bought, e.g. "Nimenunua mboga kwa Mama Wanjiku, 2,500"'}
+            value={msg} onChange={(e) => setMsg(e.target.value)} />
+          <div className="ib-compose__row">
+            <IconButton icon="paperclip" label="Attach a file" onClick={() => toast("Attaching files isn't part of the prototype.", "paperclip")} />
+            <IconButton icon="photo" label="Add a photo" onClick={() => toast("Adding photos isn't part of the prototype.", "photo")} />
+            <IconButton icon="microphone" label="Record a voice note" type="secondary" onClick={() => toast("Voice notes aren't part of the prototype.", "microphone")} />
+            <span className="ib-compose__spacer" />
+            <IconButton icon="send" label="Send to Rafiki" type="primary" onClick={() => { if (msg.trim()) { toast("Noted. This draft stays blocked because the seller is VAT-registered."); setMsg(""); } }} />
+          </div>
+        </div>
+        <p className="t-body3 c-secondary">Swahili, English or both is fine. You review everything before it is sent.</p>
+      </aside>
+
+      {asking && (
+        <Modal title={`Ask ${JUMA.name} for an eTIMS invoice`} icon={null} onClose={() => setAsking(false)}
+          footer={<><Button type="secondary" onClick={() => setAsking(false)}>Cancel</Button><Button onClick={sendAsk}>Open WhatsApp to send</Button></>}>
+          <div className="ib-askmsg">
+            <p className="t-overline c-tertiary">Message to seller</p>
+            <p className="t-body2 c-primary">WhatsApp · English · to {JUMA.name} · {JUMA.phone}</p>
+            <div className="ib-bubble"><p className="t-body2 c-primary">{JUMA.ask}</p></div>
+            <p className="t-body2 c-primary">You send this. Rafiki only prepares it.</p>
+          </div>
         </Modal>
       )}
     </div>

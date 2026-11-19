@@ -58,6 +58,20 @@ function useFilePick(onPick) {
   return [input, () => ref.current?.click()];
 }
 
+/* Read a receipt photo and add the purchase (used by the Upload receipt button and the mobile New menu) */
+export async function addReceipt(f) {
+    toast(`Reading ${f.name}…`, "loader-2");
+    await wait(1400);
+    const n = purchCol().count({}) + 1;
+    const doc = purchCol().insert({ seller: "Unga Farm Care", invoiceNo: `UFC-${4100 + n}`, date: TODAY, amount: 2450, source: "Receipt photo", payment: "M-Pesa", status: "covered",
+      pin: "P051882301U", ref: `Invoice UFC-${4100 + n}`, vat: 337.93, note: "Matched to an eTIMS invoice and an M-Pesa payment.",
+      actions: [["secondary", "Export evidence", "pack"]],
+      records: [{ icon: "receipt", title: "Receipt, Unga Farm Care", sub: `Photo · ${fmtDate(TODAY)}`, status: "validated" }, { icon: "wallet", title: "eTIMS invoice from Unga Farm Care", sub: `Received · ${fmtDate(TODAY)}`, status: "covered" }],
+      suggestion: { tone: "draft", title: "Seller matched to Unga Farm Care", body: "Matched from the PIN on your receipt.", label: "Seller", value: "Unga Farm Care", applied: true } });
+    if (m3Empty()) db.set("m3", { scenario: "live" });
+    toast("Receipt read: Unga Farm Care is covered", "circle-check", { tone: "success", action: { label: "View", onClick: () => navigate(`/purchases/${doc._id}`) } });
+}
+
 /* ═════════ 1. Purchases list ═════════ */
 const P_TABS = [["all", "All"], ["covered", "Covered"], ["exempt", "Exempt"], ["needs-fixing", "Needs fixing"], ["at-risk", "At risk"]];
 const SOURCES = ["Receipt photo", "M-Pesa", "Email", "Buyer invoice"];
@@ -87,18 +101,7 @@ export function PurchasesList() {
   const shown = rows.slice((pg - 1) * size, pg * size);
   const reset = (fn) => (v) => { fn(v); setPage(1); };
 
-  const [fileInput, pick] = useFilePick(async (f) => {
-    toast(`Reading ${f.name}…`, "loader-2");
-    await wait(1400);
-    const n = purchCol().count({}) + 1;
-    const doc = purchCol().insert({ seller: "Unga Farm Care", invoiceNo: `UFC-${4100 + n}`, date: TODAY, amount: 2450, source: "Receipt photo", payment: "M-Pesa", status: "covered",
-      pin: "P051882301U", ref: `Invoice UFC-${4100 + n}`, vat: 337.93, note: "Matched to an eTIMS invoice and an M-Pesa payment.",
-      actions: [["secondary", "Export evidence", "pack"]],
-      records: [{ icon: "receipt", title: "Receipt, Unga Farm Care", sub: `Photo · ${fmtDate(TODAY)}`, status: "validated" }, { icon: "wallet", title: "eTIMS invoice from Unga Farm Care", sub: `Received · ${fmtDate(TODAY)}`, status: "covered" }],
-      suggestion: { tone: "draft", title: "Seller matched to Unga Farm Care", body: "Matched from the PIN on your receipt.", label: "Seller", value: "Unga Farm Care", applied: true } });
-    if (empty) db.set("m3", { scenario: "live" });
-    toast("Receipt read: Unga Farm Care is covered", "circle-check", { tone: "success", action: { label: "View", onClick: () => navigate(`/purchases/${doc._id}`) } });
-  });
+  const [fileInput, pick] = useFilePick(addReceipt);
 
   const selRows = all.filter((p) => selected.includes(p._id));
   const columns = [
@@ -272,7 +275,8 @@ export function PurchaseDetail({ id }) {
         <div className="exp-records__aside">
           {s && !hidden && (
             <AgentSuggestion sectionRef={sref} tone={s.tone} title={s.title} body={s.body} label={s.label} value={s.applied ? s.value : value} why={s.why}
-              applied={s.applied} appliedText={s.appliedText} editable={!!s.editValue}
+              applied={s.applied} appliedText={s.appliedText} editable={!!s.editValue} readOnly={s.readOnly}
+              badge={s.checked ? <StatusBadge status="validated" outline label={s.checked} /> : undefined}
               onValueChange={setValue} onAlt={() => { if (s.editValue && value === s.value) setValue(s.editValue); }}
               onUndo={() => { update({ suggestion: { ...s, applied: false } }); toast("Undone", "refresh"); }}
               acceptLabel={s.accept || "Accept"} busy={busy} onAccept={accept}

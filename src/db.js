@@ -25,7 +25,7 @@ function load() {
         added.push(id);
       }
       // 18 Nov: Mama Wanjiku and Mama Atieno are saved suppliers; the new payee is 0723 118 940 at KSh 2,500
-      for (const id of ["sup_mamawanjiku", "sup_mamaatieno"]) if (!added.includes(id)) {
+      for (const id of ["sup_mamawanjiku", "sup_mamaatieno", "sup_juma"]) if (!added.includes(id)) {
         const cur = saved.collections.suppliers?.find((d) => d._id === id), fresh = seed.collections.suppliers.find((d) => d._id === id);
         if (saved.collections.suppliers && !cur) saved.collections.suppliers.push(structuredClone(fresh));
         else if (cur) Object.assign(cur, { phone: fresh.phone, pin: fresh.pin, etims: false, payments: cur.payments || fresh.payments, history: cur.history || fresh.history });

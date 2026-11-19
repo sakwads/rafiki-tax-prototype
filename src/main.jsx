@@ -12,6 +12,7 @@ import "./styles/settings.css";
 import "./styles/help.css";
 import "./styles/landing.css";
 import "./styles/themes.css";
+import "./styles/mobile.css";
 import { useRoute, navigate, query } from "./router.js";
 import { db, session } from "./db.js";
 import { ToastStack, useDb } from "./components/ui.jsx";
@@ -121,6 +122,18 @@ function App() {
     </>
   );
 }
+
+// PWA: offline shell. Needs HTTPS (or localhost); skipped quietly otherwise.
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+
+// Platform hook: lets CSS adjust the few pieces that should feel native on iPhone or Android.
+(() => {
+  const ua = navigator.userAgent || "";
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  document.documentElement.dataset.platform = ios ? "ios" : /Android/.test(ua) ? "android" : "other";
+})();
 
 window.rafikiDB = db; // handy for poking at the data from the browser console
 createRoot(document.getElementById("root")).render(<App />);

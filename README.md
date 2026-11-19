@@ -7,6 +7,8 @@ Built to match the Figma files *04. Rafiki Tax – Landing and Login* and *05. R
 
 ## Open it
 
+**Live:** https://rafiki-tax-prototype-production.up.railway.app/ (Railway, redeploys on every push to GitHub).
+
 **On your Mac:** double-click **`START HERE.html`** (or `docs/index.html`). It opens in your browser. You don't need to install anything.
 
 **Online (Railway):** push this folder to GitHub, then in Railway choose *New Project → Deploy from GitHub repo* and pick the repo. Railway reads `package.json` by itself: it installs, runs `npm run build`, then `npm start` (a tiny server that listens on Railway's `PORT`). No settings or environment variables are needed. When it's live, generate a public domain in the service's networking settings. Optional: set the healthcheck path to `/health`.
@@ -16,6 +18,10 @@ Built to match the Figma files *04. Rafiki Tax – Landing and Login* and *05. R
 ## Landing page
 
 The prototype opens on the landing page (`#/`). *Check my expenses* starts sign-up, *Sign in* opens sign-in (or *Open the app* if you're already signed in). The sun/moon button switches light and dark. Feature tabs, the hero carousel and the FAQ all work.
+
+## VAT-registered seller (Invoice Builder, Flow 8)
+
+Demo panel → *VAT seller: Checking*. Rafiki reads Juma Building Supplies' WhatsApp message, checks the PIN on eTIMS and blocks the buyer-initiated invoice, because KRA doesn't allow them for VAT-registered sellers. *Write message* prepares a WhatsApp asking for an eTIMS invoice; *Open WhatsApp to send* moves the purchase to Purchases as At risk. *Reset Module 4 data* puts it back.
 
 ## Help and eTIMS Sync
 

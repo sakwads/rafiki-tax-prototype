@@ -41,7 +41,7 @@ export function Facts({ rows }) {
 /* ───────── Agent suggestion ─────────
    Rafiki prepares, the owner decides. tone: warning | info | neutral | draft */
 export function AgentSuggestion({ tone = "warning", title, body, label, value, onValueChange, editable, choices,
-  acceptLabel = "Accept", altLabel = "Edit", onAccept, onDismiss, onAlt, applied, onUndo, busy, why, appliedText = "Applied to this expense", badge, sectionRef }) {
+  acceptLabel = "Accept", altLabel = "Edit", onAccept, onDismiss, onAlt, applied, onUndo, busy, why, appliedText = "Applied to this expense", badge, sectionRef, readOnly }) {
   const [editing, setEditing] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
   return (
@@ -82,9 +82,11 @@ export function AgentSuggestion({ tone = "warning", title, body, label, value, o
           <>
             <TextLink size={3} aria-expanded={showWhy} onClick={() => setShowWhy(!showWhy)}>Why?</TextLink>
             <span className="suggest__spacer" />
+            {!readOnly && <>
             <Button type="tertiary" size="sm" onClick={onDismiss}>Dismiss</Button>
             <Button type="accent" size="sm" onClick={() => { if (editable) setEditing(!editing); if (onAlt) onAlt(); }}>{editing ? "Done" : altLabel}</Button>
             <Button size="sm" loading={busy} onClick={onAccept}>{acceptLabel}</Button>
+            </>}
           </>
         )}
       </div>

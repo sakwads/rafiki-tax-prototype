@@ -40,6 +40,11 @@ function builderAt(stage) {
     : stage === "accepted" ? { ...q, stage: "accepted", pin: SELLER.pin, pinFrom: "last", lines: [L4("sukuma"), L4("nyanya"), L4("vitunguu")] } : startDraft("repeat");
   setM4({ draft: d }); navigate("/invoices/build");
 }
+// Flow 8: a VAT-registered seller (Juma Building Supplies). Checking runs, then the draft is blocked.
+function vatAt(stage) {
+  ensureUser();
+  setM4({ draft: { ...startDraft("juma"), stage } }); navigate("/invoices/build");
+}
 function sentAt(status) {
   ensureUser();
   const col = db.collection("invoices");
@@ -59,6 +64,9 @@ function resetModule4() {
   db.collection("deadlines").find({}).filter((d) => d.no?.startsWith("BII-")).forEach((d) => db.collection("deadlines").remove(d._id));
   if (db.collection("suppliers").get("sup_mamawanjiku")) db.collection("suppliers").remove("sup_mamawanjiku");
   if (db.collection("notifications").get("n_payfail")) db.collection("notifications").remove("n_payfail");
+  if (db.collection("purchases").get("exp_juma")) db.collection("purchases").remove("exp_juma");
+  const sc = db.collection("suppliers"); if (sc.get("sup_juma")) sc.remove("sup_juma");
+  sc.insert(structuredClone(seed.collections.suppliers.find((x) => x._id === "sup_juma")));
   db.set("m4", structuredClone(seed.kv.m4));
 }
 
@@ -175,7 +183,7 @@ export function DemoPanel() {
             <div className="demo__jumps">
               {[["Landing", () => jump("/invoices")], ["Choose source", () => jump("/invoices/new")], ["Builder: Reading", () => builderAt("reading")],
                 ["Builder: Question", () => builderAt("question")], ["Builder: Suggestion", () => builderAt("suggestion")], ["Builder: Accepted", () => builderAt("accepted")],
-                ["Builder: Repeat", () => builderAt("repeat")], ["Sent: Waiting", () => sentAt("waiting")], ["Sent: Expiring", () => sentAt("expiring")],
+                ["Builder: Repeat", () => builderAt("repeat")], ["VAT seller: Checking", () => vatAt("checking")], ["VAT seller: Blocked", () => vatAt("blocked")], ["Sent: Waiting", () => sentAt("waiting")], ["Sent: Expiring", () => sentAt("expiring")],
                 ["Sent: Approved", () => sentAt("approved")], ["Sent: Rejected", () => sentAt("rejected")], ["Sent: Expired", () => sentAt("expired")],
                 ["Credit note", () => jump("/invoices/credit")], ["Credit note: Needs you", () => jump("/invoices/credit?state=needs")],
                 ["Rejected record (side sheet)", () => window.dispatchEvent(new CustomEvent("rafiki:record"))], ["Pay sheet", () => window.dispatchEvent(new CustomEvent("rafiki:pay"))]]

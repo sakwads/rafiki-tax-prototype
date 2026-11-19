@@ -4,6 +4,7 @@ import { AgentSuggestion, Drawer, EmptyState, Facts, SkelCard, SkelItem, Sparkli
 import { db } from "../db.js";
 import { TODAY } from "../seed.js";
 import { navigate } from "../router.js";
+import { MobileSyncRow } from "../components/syncrow.jsx";
 
 const queueCol = () => db.collection("queue");
 const deadlineCol = () => db.collection("deadlines");
@@ -54,7 +55,8 @@ export function HomePage({ itemId }) {
 
   return (
     <div className="page">
-      <div className="title-row">
+      <MobileSyncRow />
+      <div className="title-row title-row--home">
         <div className="title-row__text">
           <h1 className="t-h3 c-primary">Home</h1>
           <p className="t-body2 c-secondary">{queue.length ? `What needs you today, ${todayLong()}. Rafiki has checked everything else.` : `Nothing needs you today, ${todayLong()}. Rafiki is watching the rest.`}</p>

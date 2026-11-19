@@ -53,3 +53,16 @@ export const ATIENO = {
 // The payment that failed (Payment failed notification and Pay sheet)
 export const PAYMENT = { to: "Mama Wanjiku", network: "M-Pesa", from: "Business account", invoice: "Draft, 3 lines", charge: "None known", amount: 2500, ref: "UKB7X2P9TD" };
 export const APP_PIN = "1234";
+
+// Flow 8: VAT-registered seller (Figma 8. Invoice Builder / VAT-registered seller). KRA blocks buyer-initiated
+// invoices for VAT-registered sellers, so Rafiki checks the PIN on eTIMS and blocks sending.
+export const JUMA = {
+  name: "Juma Building Supplies", short: "Juma", pin: "P051428863M", phone: "0733 518 402", till: "552190",
+  date: "16/11/2026", forwarded: "Forwarded Mon 16 Nov, 2:15 PM", time: "2:15 PM",
+  message: "Boss, cement 5 bags @870 na misumari 2kg @250, jumla 4,850. PIN yetu P051428863M. Lipa till 552190.",
+  lines: [
+    { id: "cement", name: "Cement, 50 kg bags", qty: 5, unit: "bags", price: 870, origin: "rafiki" },
+    { id: "nails", name: "Nails, 4 inch", qty: 2, unit: "kg", price: 250, origin: "rafiki" },
+  ],
+  ask: "Hello Juma, thank you for the cement and nails (KSh 4,850.00, 16 Nov). Please send us an eTIMS invoice with our KRA PIN P051234567Z, for Wanjiku Fresh Greens Ltd. Thank you.",
+};

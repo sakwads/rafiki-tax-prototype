@@ -164,3 +164,6 @@
 .ib-kv__v.t-body2 { font-size: 14px; }
 .badge--outline.badge--waiting { background: transparent; color: var(--rf-text-brand); box-shadow: inset 0 0 0 1px var(--rf-text-brand); }
 .ib-hl { box-shadow: none; }
+.ib-vat-col { display: flex; flex-direction: column; gap: var(--rf-spacing-lg); min-width: 0; }
+.ib-askmsg { display: flex; flex-direction: column; gap: var(--rf-spacing-sm); padding: var(--rf-spacing-md); border: 1px solid var(--rf-border-container); border-radius: var(--rf-radius-ms); }
+.ib-askmsg p { margin: 0; }

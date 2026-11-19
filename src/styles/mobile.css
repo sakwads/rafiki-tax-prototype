@@ -1,0 +1,159 @@
+/* ───────── Mobile layer (phones, ≤720px) ─────────
+   Mirrors the Rafiki Platform tokens (Web / Android modes) from 01 Tokens.
+   Loaded last so it can override the desktop rules. Tablets and wider keep the desktop layout. */
+
+:root {
+  --rf-safe-top: env(safe-area-inset-top, 0px);
+  --rf-safe-right: env(safe-area-inset-right, 0px);
+  --rf-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --rf-safe-left: env(safe-area-inset-left, 0px);
+
+  /* Platform tokens, Web mode (default) */
+  --rf-control-height-small: 32px;
+  --rf-control-height-default: 52px;
+  --rf-control-icon-button: 40px;
+  --rf-control-touch-target: 24px;
+  --rf-control-icon-size: 20px;
+  --rf-nav-bar-height: 64px;
+  --rf-fab-height: 56px;
+}
+
+/* All sizes: use the real visible viewport so phone browser bars do not clip the app */
+.app, .auth, .onb { height: 100vh; height: 100dvh; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { -webkit-tap-highlight-color: transparent; }
+button, a, [role="button"], input, select, textarea { touch-action: manipulation; }
+
+/* Standalone (installed) PWA: no browser chrome, so keep content clear of the notch and home bar */
+@media (display-mode: standalone) {
+  body { overscroll-behavior-y: none; }
+}
+
+@media (max-width: 720px) {
+  /* Platform tokens, Android mode */
+  :root {
+    --rf-control-height-small: 40px;
+    --rf-control-height-default: 56px;
+    --rf-control-icon-button: 48px;
+    --rf-control-touch-target: 48px;
+    --rf-control-icon-size: 24px;
+
+    --rf-grid-gutter: 16px;
+    --rf-grid-margin: 16px;       /* screen/edge-padding */
+    --rf-header-height: 64px;     /* app-bar/height */
+    --rf-layout-center-small: 100%;
+    --rf-layout-center-medium: 100%;
+    --rf-layout-center-large: 100%;
+  }
+
+  /* One column: every grid span becomes full width */
+  .grid > [class*="col-span-"] { grid-column: 1 / -1; }
+
+  /* 48 touch targets (Android 48 dp, Apple 44 pt, WCAG 2.2 AA 24 px) */
+  .btn { min-height: var(--rf-control-height-default); }
+  .btn--sm { min-height: var(--rf-control-height-small); }
+  .icon-btn--40, .icon-btn--32 { width: var(--rf-control-icon-button); height: var(--rf-control-icon-button); }
+  .icon-btn .icon { width: var(--rf-control-icon-size); height: var(--rf-control-icon-size); }
+
+  /* iOS Safari zooms the page when a field under 16px takes focus */
+  input, textarea, select { font-size: 16px; }
+
+  /* Toasts become snackbars: full width, above the bottom bar */
+  .toast-stack { left: var(--rf-grid-margin); right: var(--rf-grid-margin); bottom: calc(var(--rf-nav-bar-height) + var(--rf-safe-bottom) + 16px); align-items: stretch; }
+  .toast { min-width: 0; max-width: none; }
+
+  /* Prototype Demo panel: smaller and out of the thumb zone */
+  .demo { bottom: calc(var(--rf-nav-bar-height) + var(--rf-safe-bottom) + 80px); }
+  .demo__panel { width: min(320px, calc(100vw - 24px)); }
+
+  /* Auth and onboarding: single column, fields fill the width */
+  .auth__form { padding: var(--rf-grid-margin); padding-top: calc(var(--rf-grid-margin) + var(--rf-safe-top)); padding-bottom: calc(var(--rf-grid-margin) + var(--rf-safe-bottom)); }
+  .auth__slot { width: 100%; }
+  .onb__layout { padding: var(--rf-grid-margin); }
+  .onb__slot, .onb__slot--large { width: 100%; }
+  .step-header { padding: var(--rf-spacing-md) var(--rf-grid-margin); gap: var(--rf-spacing-md); padding-top: calc(var(--rf-spacing-md) + var(--rf-safe-top)); }
+}
+
+/* ───────── Mobile shell pieces (hidden on desktop, shown ≤720px) ───────── */
+.mnav, .fab, .fab-scrim, .msheet, .sync-row, .app-header__ask, .notif-panel__close { display: none; }
+@keyframes rf-sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@media (max-width: 720px) {
+  .sidebar { display: none; }
+
+  /* Top app bar: search field with Ask Rafiki inside it, then the bell */
+  .app-header { height: calc(var(--rf-header-height) + var(--rf-safe-top)); padding: var(--rf-safe-top) var(--rf-grid-margin) 0; gap: var(--rf-spacing-sm);
+    background: var(--rf-background-default); backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 0; }
+  .app-header__search { position: relative; flex: 1 1 0; width: auto; max-width: none; min-width: 0; }
+  .app-header__find { min-height: var(--rf-control-height-default); padding-right: 56px; border-radius: var(--rf-radius-pill); }
+  .app-header__find-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header__kbd, .app-header__spacer, .app-header__help, .app-header__sync, .app-header__acct { display: none; }
+  .app-header__ask { display: flex; position: absolute; right: 4px; top: 4px; width: var(--rf-control-icon-button); height: var(--rf-control-icon-button);
+    align-items: center; justify-content: center; border-radius: var(--rf-radius-pill); color: var(--rf-text-brand); }
+  .app-header__logo .logo__word { display: none; }
+
+  /* Notifications: full-screen list instead of a dropdown */
+  .bell-wrap { position: static; }
+  .notif-panel { position: fixed; inset: 0; top: 0; right: 0; width: auto; border: 0; border-radius: 0; box-shadow: none; animation: none; overflow-y: auto; z-index: 80;
+    padding: calc(var(--rf-safe-top) + var(--rf-grid-margin)) var(--rf-grid-margin) calc(var(--rf-safe-bottom) + var(--rf-grid-margin)); }
+  .notif-panel__caret { display: none; }
+  .notif-list { max-height: none; overflow: visible; }
+  .notif-panel__close { display: inline-flex; order: -1; }
+
+  /* Content clears the bottom bar and the New button */
+  .content__inner { padding-bottom: calc(var(--rf-nav-bar-height) + var(--rf-safe-bottom) + 96px); }
+
+  /* Bottom navigation bar (5 items, 64 dp) */
+  .mnav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; height: calc(var(--rf-nav-bar-height) + var(--rf-safe-bottom));
+    padding: 0 var(--rf-safe-right) var(--rf-safe-bottom) var(--rf-safe-left); background: var(--rf-surface-default); border-top: 1px solid var(--rf-border-default); }
+  .mnav__item { flex: 1 1 0; min-width: 0; min-height: var(--rf-control-touch-target); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    color: var(--rf-text-secondary); font: 500 12px/16px var(--rf-font-body); }
+  .mnav__pill { display: flex; align-items: center; justify-content: center; width: 64px; height: 32px; border-radius: 16px; transition: background-color .15s; }
+  .mnav__item--active { color: var(--rf-nav-active-text); font-weight: 700; }
+  .mnav__item--active .mnav__pill { background: var(--rf-action-accent); }
+  .mnav__item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--rf-input-border-focus); border-radius: var(--rf-radius-sm); }
+
+  /* New button and its menu */
+  .fab { display: flex; position: fixed; z-index: 15; right: calc(var(--rf-grid-margin) + var(--rf-safe-right)); bottom: calc(var(--rf-nav-bar-height) + var(--rf-safe-bottom) + 16px);
+    flex-direction: column; align-items: flex-end; gap: 16px; }
+  .fab__btn, .fab__item { display: flex; align-items: center; gap: 8px; height: var(--rf-fab-height); padding: 0 24px 0 16px; border-radius: var(--rf-radius-pill); box-shadow: var(--rf-shadow-floating); }
+  .fab__btn { background: var(--rf-action-primary); color: var(--rf-action-primary-text); }
+  .fab__menu { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .fab__item { background: var(--rf-action-accent); color: var(--rf-action-accent-text); }
+  .fab--open { z-index: 30; }
+  .fab-scrim { display: block; position: fixed; inset: 0; z-index: -1; width: 100%; background: rgba(26, 28, 23, 0.4); }
+
+  /* More sheet */
+  .msheet { display: block; position: fixed; inset: 0; z-index: 40; }
+  .msheet__scrim { position: absolute; inset: 0; width: 100%; background: rgba(26, 28, 23, 0.4); }
+  .msheet__panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 85dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+    padding: 12px var(--rf-grid-margin) calc(var(--rf-grid-margin) + var(--rf-safe-bottom)); background: var(--rf-surface-default); border-radius: var(--rf-radius-lg) var(--rf-radius-lg) 0 0;
+    animation: rf-sheet-up .2s ease-out; }
+  .msheet__grab { align-self: center; width: 32px; height: 4px; margin-bottom: 8px; border-radius: 2px; background: var(--rf-border-strong); }
+  .msheet__who { display: flex; align-items: center; gap: var(--rf-spacing-ms); padding: var(--rf-spacing-sm) 0 var(--rf-spacing-md); border-bottom: 1px solid var(--rf-border-default); }
+  .msheet__who-text { display: flex; flex-direction: column; min-width: 0; }
+  .msheet__item { display: flex; align-items: center; gap: var(--rf-spacing-md); width: 100%; min-height: 56px; padding: 0 var(--rf-spacing-sm); border-radius: var(--rf-radius-md); text-align: left; }
+  .msheet__item:hover { background: var(--rf-surface-low); }
+  .msheet__item:focus-visible { outline: none; box-shadow: var(--rf-focus-ring); }
+
+  /* Home: the intro line stays, the page title and desktop buttons give way to the top bar, sync row and New button */
+  .sync-row { display: flex; align-items: center; gap: var(--rf-spacing-sm); padding-bottom: var(--rf-spacing-md); color: var(--rf-text-secondary); }
+  .sync-row__text { flex: 1 1 0; min-width: 0; }
+  .sync-row__btn { min-height: var(--rf-control-touch-target); padding: 0 var(--rf-spacing-sm); border-radius: var(--rf-radius-sm); color: var(--rf-text-link); }
+  .sync-row__btn:disabled { color: var(--rf-state-disabled-text); }
+  .title-row--home .title-row__actions { display: none; }
+  .title-row--home h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* ───────── Home on phones ───────── */
+@media (max-width: 720px) {
+  .page { gap: var(--rf-spacing-md); }
+  .title-row--home { gap: 0; }
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+  .kpi { padding: var(--rf-spacing-md); border-radius: var(--rf-radius-md); }
+  .kpi__spark { display: block; right: var(--rf-spacing-md); bottom: var(--rf-spacing-md); }
+  .home-main { grid-template-columns: minmax(0, 1fr); gap: var(--rf-spacing-md); }
+  .queue__header { padding: var(--rf-spacing-md); }
+  .queue__rows { padding: var(--rf-spacing-xs) var(--rf-spacing-sm) var(--rf-spacing-md); }
+  .tl-track { width: 100%; }
+}

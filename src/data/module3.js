@@ -106,6 +106,8 @@ export const SUPPLIERS = [
     payments: [{ icon: "brand-whatsapp", title: "Message from Mama Wanjiku", sub: "WhatsApp · Sat 14 Nov 2026", amount: 2500, status: "validated" },
       { icon: "device-mobile-message", title: "M-Pesa to 0712 345 678", sub: "Payment · Sat 14 Nov 2026", amount: 2500, status: "validated" }],
     history: [{ icon: "circle-check", title: "Supplier saved", sub: "Matched from 6 past M-Pesa payments for vegetables", date: "14 Nov" }] }),
+  S({ _id: "sup_juma", name: "Juma Building Supplies", short: "Juma", pin: "P051428863M", phone: "0733 518 402", last: "2026-11-16", payVia: "M-Pesa till", vat: true, confirmedOn: "16 Nov 2026", pronoun: "them",
+    history: [{ icon: "alert-circle", title: "Buyer-initiated invoice blocked", sub: "VAT-registered on eTIMS. Ask them for an eTIMS invoice.", date: "16 Nov" }] }),
   S({ _id: "sup_mamaatieno", name: "Mama Atieno", short: "Mama Atieno", pin: "P051987654C", phone: "0745 118 220", last: "2026-11-11", payVia: "M-Pesa Pochi", etims: false, confirmedOn: "11 Nov 2026", pronoun: "her",
     invoices: [{ icon: "file-text", title: "Fish, 2 kg", sub: "Buyer-initiated · sent 11 Nov", meta: "Rejected: “Quantity is wrong”", metaIcon: "circle-x", amount: 3000, status: "rejected", to: "/invoices" }],
     history: [{ icon: "circle-x", title: "Invoice rejected", sub: "Fish, KSh 3,000.00 · “Quantity is wrong”", date: "17 Nov" }, { icon: "send", title: "Invoice sent for approval", sub: "Fish, KSh 3,000.00", date: "11 Nov" }] }),
