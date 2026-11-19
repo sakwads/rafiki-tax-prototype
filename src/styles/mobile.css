@@ -157,3 +157,74 @@ button, a, [role="button"], input, select, textarea { touch-action: manipulation
   .queue__rows { padding: var(--rf-spacing-xs) var(--rf-spacing-sm) var(--rf-spacing-md); }
   .tl-track { width: 100%; }
 }
+
+/* ───────── Round 2 (19 Nov, after the first phone test) ───────── */
+@media (max-width: 720px) {
+  /* The app fills the screen and never scrolls as a page (only .content scrolls), so it cannot slide under the browser toolbar */
+  .app, .auth, .onb { position: fixed; inset: 0; height: auto; min-height: 0; }
+  html, body { overscroll-behavior: none; }
+
+  /* Space above the top bar so it can breathe */
+  :root { --rf-top-gap: 16px; }
+  .app-header { height: calc(var(--rf-header-height) + var(--rf-safe-top) + var(--rf-top-gap)); padding-top: calc(var(--rf-safe-top) + var(--rf-top-gap)); }
+  .notif-panel { padding-top: calc(var(--rf-safe-top) + var(--rf-top-gap)); }
+
+  /* Active nav icon sits on the lime pill, so it uses the accent text colour (dark in both themes) */
+  .mnav__item--active .mnav__pill { background: var(--rf-action-accent); color: var(--rf-action-accent-text); }
+
+  /* Snackbars: the success and warning toasts had fixed 400px widths */
+  .toast, .toast--success, .toast--warning { width: 100%; min-width: 0; max-width: none; box-sizing: border-box; }
+  .toast > span { flex: 1 1 0; min-width: 0; }
+
+  /* Tab strips scroll sideways instead of wrapping or clipping */
+  .tabs { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; white-space: nowrap; }
+
+  /* Action rows wrap, search and filters use the full width */
+  .title-row__actions { flex-wrap: wrap; gap: var(--rf-spacing-sm); }
+  .tcard__top { padding: var(--rf-spacing-md); }
+  .tcard__search { width: 100%; }
+  .tcard__filters { flex: 1 1 100%; justify-content: flex-start; }
+  .chip { min-height: var(--rf-control-touch-target); }
+
+  /* Tables scroll sideways; the first column stays pinned, and with the select column showing, both stay pinned */
+  .tbl__head, .tbl__row { padding-left: 0; }
+  .tbl__cell--check, .tbl__cell--first { position: sticky; z-index: 2; background: inherit; }
+  .tbl__cell--check { left: 0; }
+  .tbl__cell--first { left: 0; min-width: 148px; box-shadow: 1px 0 0 var(--rf-border-default); }
+  .tbl--sel .tbl__cell--first { left: 48px; }
+}
+
+/* Help: menu on top, article below, no "on this page" column */
+@media (max-width: 720px) {
+  .help { grid-template-columns: minmax(0, 1fr); gap: var(--rf-spacing-md); }
+  .help-menu { position: static; }
+  .help-toc { display: none; }
+  .help-article { padding: var(--rf-spacing-md); }
+  .help-ask, .help-pager { flex-wrap: wrap; }
+}
+
+/* Round 3: page actions, filters, tabs, landing nav */
+.actions-wide { display: contents; }
+.actions-menu { display: none; }
+@media (max-width: 720px) {
+  .actions-wide { display: none; }
+  .actions-menu { display: block; }
+  .actions-menu .pop__menu { min-width: 220px; }
+  .actions-menu .pop__item { min-height: var(--rf-control-touch-target); }
+
+  /* Filters: Source + Network share a row (50% each, 16px gap); Date range takes the full width */
+  .tcard__filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--rf-spacing-md); width: 100%; }
+  .tcard__filters > * { min-width: 0; }
+  .tcard__filters > :last-child { grid-column: 1 / -1; }
+  .tcard__filters > .btn { grid-column: 1 / -1; justify-self: start; }
+  .tcard__filters .pop { width: 100%; }
+  .tcard__filters .chip { width: 100%; justify-content: space-between; }
+  .tcard__filters .pop__menu { left: 0; right: 0; min-width: 0; }
+
+  /* Tabs scroll inside the white card instead of stretching it */
+  .tcard, .tcard__top, .page { min-width: 0; max-width: 100%; }
+  .tcard__top > * { min-width: 0; max-width: 100%; }
+  .tcard__top .tabs { align-self: stretch; width: 100%; overflow-x: auto; }
+}

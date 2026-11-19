@@ -255,7 +255,7 @@ function MobileChrome({ active }) {
         </button>
       </nav>
 
-      {NEW_SCREENS.includes(active) && (
+      {NEW_SCREENS.includes(hash.replace(/^#/, "").split("?")[0]) && (
         <>
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="sr-only" tabIndex={-1} aria-hidden="true"
             onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) addReceipt(f); }} />

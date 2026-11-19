@@ -195,3 +195,51 @@
 }
 .auth__home { text-decoration: none; align-self: flex-start; border-radius: var(--rf-radius-sm); }
 .auth__home:focus-visible { outline: none; box-shadow: var(--rf-focus-ring); }
+
+/* ───────── Phones (≤720px) ─────────
+   The product pictures are drawn at desktop size (560 to 650px wide). `zoom` shrinks them with the layout,
+   so the picture's inside keeps its desktop proportions while the outside fits the screen. */
+@media (max-width: 720px) {
+  .lp-nav-wrap { padding: var(--rf-spacing-md) var(--rf-spacing-md) 0; }
+  .lp-nav { padding: var(--rf-spacing-sm); gap: var(--rf-spacing-sm); }
+  .lp-nav .logo__tag { display: none; }
+  .lp-nav__actions .btn--tertiary { display: none; }
+  .lp-nav__actions .btn { white-space: nowrap; }
+  .lp-nav__actions { gap: var(--rf-spacing-xs); flex-shrink: 0; }
+  .lp-nav__actions .btn { padding-inline: var(--rf-spacing-md); }
+
+  .lp-hero { padding: var(--rf-spacing-xl) var(--rf-spacing-md) var(--rf-spacing-2xl); gap: var(--rf-spacing-xl); }
+  .lp-h1 { font-size: 40px; line-height: 48px; letter-spacing: -1.2px; }
+  .lp-h2 { font-size: 30px; line-height: 38px; letter-spacing: -0.8px; }
+  .lp-h3 { font-size: 26px; line-height: 34px; }
+  .lp-highlight { padding: 0 var(--rf-spacing-md); }
+  .lp-ctas { flex-wrap: wrap; justify-content: center; }
+  .lp-section { padding: var(--rf-spacing-xl) var(--rf-spacing-md); gap: var(--rf-spacing-xl); }
+  .lp-feature { padding: var(--rf-spacing-md); gap: var(--rf-spacing-xl); }
+
+  /* Pictures: scale the whole stage, floating cards stay out of the way */
+  .lp-stage, .lp-feature__stage, .lp-bento__stage { --lp-z: 0.52; zoom: var(--lp-z); }
+  .lp-stage { height: 620px; min-height: 0; }
+  .lp-feature__stage { height: 520px; }
+  .lp-bento__stage { height: 360px; }
+  .lp-stage .lp-float { display: none; }
+
+  /* Feature tabs scroll sideways */
+  .lp-tabs { width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-bottom: 0; }
+  .lp-tabs::-webkit-scrollbar { display: none; }
+  .lp-tab { flex: 0 0 auto; white-space: nowrap; min-height: var(--rf-control-touch-target); }
+
+  /* Footer */
+  .lp-footer { padding: var(--rf-spacing-xl) var(--rf-spacing-md) var(--rf-spacing-lg); }
+  .lp-footer__top { flex-direction: column; gap: var(--rf-spacing-xl); }
+  .lp-footer__cols { flex-wrap: wrap; gap: var(--rf-spacing-xl) var(--rf-spacing-2xl); }
+  .lp-footer__bottom { flex-direction: column; gap: var(--rf-spacing-sm); }
+  .lp-cta { padding: var(--rf-spacing-xl) var(--rf-spacing-md); }
+}
+@media (max-width: 399px) {
+  .lp-stage, .lp-feature__stage, .lp-bento__stage { --lp-z: 0.44; }
+  .lp-h1 { font-size: 34px; line-height: 42px; }
+}
+@media (min-width: 480px) and (max-width: 720px) {
+  .lp-stage, .lp-feature__stage, .lp-bento__stage { --lp-z: 0.7; }
+}

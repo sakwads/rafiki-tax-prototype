@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Icon, Radio, StatusBadge, TextField, toast, wait } from "../components/ui.jsx";
 import { AgentSuggestion, EmptyState, Tabs, ksh } from "../components/patterns.jsx";
-import { FilterMenu, Modal, Progress, Segmented, SelectionBar, Table, TableFooter } from "../components/table.jsx";
+import { ActionsMenu, FilterMenu, Modal, Progress, Segmented, SelectionBar, Table, TableFooter } from "../components/table.jsx";
 import { DeadlineChart } from "./home.jsx";
 import { db } from "../db.js";
 import { TODAY } from "../seed.js";
@@ -117,9 +117,19 @@ export function PurchasesList() {
     <div className="page">
       {fileInput}
       <PageTitle title="Purchases" sub="Every purchase KRA can see, and what still needs you.">
-        <Button type="tertiary" className="btn--lg" icon="hourglass-high" onClick={() => navigate("/purchases/tracker")}>Tracker</Button>
-        <Button type="tertiary" className="btn--lg" icon="send" onClick={() => navigate("/purchases/batch")}>Weekly batch</Button>
-        <Button type="secondary" className="btn--lg" onClick={() => setModal({ type: "csv" })} disabled={!all.length}>Export</Button>
+        {/* Desktop: three buttons. Phone: one Actions dropdown holding the same three. */}
+        <div className="actions-wide">
+          <Button type="tertiary" className="btn--lg" icon="hourglass-high" onClick={() => navigate("/purchases/tracker")}>Tracker</Button>
+          <Button type="tertiary" className="btn--lg" icon="send" onClick={() => navigate("/purchases/batch")}>Weekly batch</Button>
+          <Button type="secondary" className="btn--lg" onClick={() => setModal({ type: "csv" })} disabled={!all.length}>Export</Button>
+        </div>
+        <div className="actions-menu">
+          <ActionsMenu label="Actions" items={[
+            { label: "Tracker", icon: "hourglass-high", onClick: () => navigate("/purchases/tracker") },
+            { label: "Weekly batch", icon: "send", onClick: () => navigate("/purchases/batch") },
+            { label: "Export CSV", icon: "download", disabled: !all.length, onClick: () => setModal({ type: "csv" }) },
+          ]} />
+        </div>
         <Button className="btn--lg" onClick={pick}>Upload receipt</Button>
       </PageTitle>
       <section className="tcard" aria-label="Purchases">

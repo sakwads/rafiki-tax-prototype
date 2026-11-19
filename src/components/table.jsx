@@ -49,6 +49,27 @@ export function FilterMenu({ label, value, options, onChange, align = "right" })
   );
 }
 
+/* "Actions ▾" dropdown: items = [{ label, icon, onClick, disabled }]. Used where phones need several buttons folded into one. */
+export function ActionsMenu({ label = "Actions", items, align = "left" }) {
+  const { open, setOpen, ref } = usePopover();
+  return (
+    <div className="pop" ref={ref}>
+      <button type="button" className="btn btn--secondary btn--lg" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+        {label}<Icon name="chevron-down" size={20} />
+      </button>
+      {open && (
+        <div className={`pop__menu pop__menu--${align}`} role="menu" aria-label={label}>
+          {items.map((it) => (
+            <button key={it.label} type="button" role="menuitem" className="pop__item" disabled={it.disabled} onClick={() => { setOpen(false); it.onClick(); }}>
+              {it.icon && <Icon name={it.icon} size={20} />}<span>{it.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function PageSize({ value, onChange }) {
   const { open, setOpen, ref } = usePopover();
   return (
@@ -99,17 +120,17 @@ export function Table({ label, columns, rows, selectable, selected = [], onSelec
   const some = !all && ids.some((id) => selected.includes(id));
   const cellStyle = (c) => (c.width ? { width: c.width, minWidth: c.width, flex: "none" } : { flex: `${c.flex || 1} 0 0` });
   return (
-    <div className="tbl" role="table" aria-label={label} aria-busy={loading || undefined}>
+    <div className={`tbl ${selectable ? "tbl--sel" : ""}`} role="table" aria-label={label} aria-busy={loading || undefined}>
       <div className="tbl__head" role="row">
         {selectable && <div className="tbl__cell tbl__cell--check" role="columnheader">
           <BoxCheck label="Select all on this page" checked={all} mixed={some} onChange={(v) => onSelect(v ? [...new Set([...selected, ...ids])] : selected.filter((s) => !ids.includes(s)))} />
         </div>}
-        {columns.map((c) => <div key={c.key} role="columnheader" className={`tbl__cell t-overline ${c.align === "right" ? "tbl__cell--right" : ""}`} style={cellStyle(c)}>{c.label}</div>)}
+        {columns.map((c, i) => <div key={c.key} role="columnheader" className={`tbl__cell t-overline ${i === 0 ? "tbl__cell--first" : ""} ${c.align === "right" ? "tbl__cell--right" : ""}`} style={cellStyle(c)}>{c.label}</div>)}
       </div>
       {loading ? Array.from({ length: skeletonRows }, (_, i) => (
         <div key={i} className="tbl__row" role="row" aria-hidden="true">
           {selectable && <div className="tbl__cell tbl__cell--check"><span className="skel" style={{ width: 20, height: 20, borderRadius: 6 }} /></div>}
-          {columns.map((c) => <div key={c.key} className="tbl__cell" style={cellStyle(c)}><span className="skel skel--line" style={{ width: c.align === "right" ? "70%" : "80%", marginLeft: c.align === "right" ? "auto" : 0 }} /></div>)}
+          {columns.map((c, i) => <div key={c.key} className={`tbl__cell ${i === 0 ? "tbl__cell--first" : ""}`} style={cellStyle(c)}><span className="skel skel--line" style={{ width: c.align === "right" ? "70%" : "80%", marginLeft: c.align === "right" ? "auto" : 0 }} /></div>)}
         </div>
       )) : rows.length === 0 ? empty : rows.map((r) => {
         const on = selected.includes(r._id);
@@ -119,7 +140,7 @@ export function Table({ label, columns, rows, selectable, selected = [], onSelec
               <BoxCheck label={`Select ${rowLabel ? rowLabel(r) : r._id}`} checked={on} onChange={(v) => onSelect(v ? [...selected, r._id] : selected.filter((s) => s !== r._id))} />
             </div>}
             {columns.map((c, i) => (
-              <div key={c.key} role="cell" className={`tbl__cell ${c.align === "right" ? "tbl__cell--right" : ""} ${c.className || ""}`} style={cellStyle(c)}>
+              <div key={c.key} role="cell" className={`tbl__cell ${i === 0 ? "tbl__cell--first" : ""} ${c.align === "right" ? "tbl__cell--right" : ""} ${c.className || ""}`} style={cellStyle(c)}>
                 {i === 0 && onRowClick
                   ? <button type="button" className="tbl__open" onClick={(e) => { e.stopPropagation(); onRowClick(r); }}>{c.render ? c.render(r) : r[c.key]}</button>
                   : c.render ? c.render(r) : r[c.key]}
