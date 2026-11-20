@@ -25,6 +25,7 @@ export function replayHomeLoading() { homeLoaded = false; arrivalShown = false; 
 export function HomePage({ itemId }) {
   const scenario = (db.get("home") || {}).scenario || "live";
   const allClear = scenario === "all-clear";
+  const fresh = scenario === "fresh";   // after "Delete my data": nothing yet, still signed in
   const [loading, setLoading] = useState(!homeLoaded);
 
   useEffect(() => {
@@ -43,10 +44,13 @@ export function HomePage({ itemId }) {
     return () => clearTimeout(t);
   }, [loading]);
 
-  const queue = allClear ? [] : queueCol().find({ status: "open" }).sort((a, b) => a.order - b.order);
+  const queue = allClear || fresh ? [] : queueCol().find({ status: "open" }).sort((a, b) => a.order - b.order);
   const risky = queue.filter((q) => q.kind === "at-risk" || q.kind === "needs-fixing");
   const waiting = deadlineCol().find({ status: (s) => s === "waiting" || s === "reminded" });
-  const tiles = allClear
+  const FLAT = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
+  const tiles = fresh
+    ? [["alert-triangle", "At risk · 0 purchases", 0, FLAT], ["hourglass-high", "Waiting on 0 sellers", 0, FLAT], ["shield-check", "Covered this month", 0, FLAT]]
+    : allClear
     ? [["alert-triangle", "At risk · 0 purchases", 0, [0.7, 0.6, 0.45, 0.4, 0.2, 0.05]], ["hourglass-high", "Waiting on 3 sellers", 27700, [0.6, 0.65, 0.55, 0.5, 0.45, 0.4]], ["shield-check", "Covered this month", 145050, [0.15, 0.3, 0.3, 0.55, 0.7, 0.95]]]
     : [["alert-triangle", `At risk · ${risky.length} purchase${risky.length === 1 ? "" : "s"}`, risky.reduce((s, q) => s + q.amount, 0), [0.2, 0.35, 0.3, 0.55, 0.65, 0.85]],
        ["hourglass-high", `Waiting on ${waiting.length} seller${waiting.length === 1 ? "" : "s"}`, waiting.reduce((s, d) => s + d.amount, 0), [0.45, 0.5, 0.48, 0.5, 0.47, 0.5]],
@@ -59,7 +63,7 @@ export function HomePage({ itemId }) {
       <div className="title-row title-row--home">
         <div className="title-row__text">
           <h1 className="t-h3 c-primary">Home</h1>
-          <p className="t-body2 c-secondary">{queue.length ? `What needs you today, ${todayLong()}. Rafiki has checked everything else.` : `Nothing needs you today, ${todayLong()}. Rafiki is watching the rest.`}</p>
+          <p className="t-body2 c-secondary">{fresh ? "Your data was deleted. Rafiki starts fresh from your next purchase." : queue.length ? `What needs you today, ${todayLong()}. Rafiki has checked everything else.` : `Nothing needs you today, ${todayLong()}. Rafiki is watching the rest.`}</p>
         </div>
         <div className="title-row__actions">
           <Button type="secondary" className="btn--lg" onClick={() => navigate("/invoices/new")}>Start an invoice</Button>
@@ -86,7 +90,7 @@ export function HomePage({ itemId }) {
           <div className="queue__header">
             <div className="queue__header-text">
               <h2 id="queue-h" className="t-h5 c-primary">Needs you today</h2>
-              <p className="t-body2 c-secondary">{loading ? "Checking your purchases…" : queue.length ? `${queue.length} item${queue.length === 1 ? "" : "s"}, most urgent first` : "Nothing waiting"}</p>
+              <p className="t-body2 c-secondary">{loading ? "Checking your purchases…" : queue.length ? `${queue.length} item${queue.length === 1 ? "" : "s"}, most urgent first` : fresh ? "Nothing yet" : "Nothing waiting"}</p>
             </div>
             <Button type="tertiary" className="btn--lg" onClick={() => navigate("/purchases")}>See all in Purchases</Button>
           </div>
@@ -110,8 +114,10 @@ export function HomePage({ itemId }) {
             </ul>
           ) : (
             <div style={{ padding: 24 }}>
+              {fresh ? <EmptyState icon="file-text" title="No purchases yet" body="Snap a receipt or connect M-Pesa, and Rafiki builds your evidence from here."
+                action={<Button className="btn--lg" onClick={() => navigate("/purchases")}>Add purchase</Button>} /> :
               <EmptyState title="Nothing needs you today" body="Every purchase is covered or waiting on a seller. Rafiki will tell you when that changes."
-                action={<Button className="btn--lg" onClick={() => navigate("/purchases")}>See all purchases</Button>} />
+                action={<Button className="btn--lg" onClick={() => navigate("/purchases")}>See all purchases</Button>} />}
             </div>
           )}
         </section>
@@ -122,7 +128,7 @@ export function HomePage({ itemId }) {
           ) : (
             <div className="rail">
               <h2 className="t-semi2 c-primary">Next 30 days</h2>
-              {railEvents(allClear).map((e) => <RailEvent key={e._id} e={e} />)}
+              {fresh ? <p className="t-body2 c-secondary">Nothing coming up yet.</p> : railEvents(allClear).map((e) => <RailEvent key={e._id} e={e} />)}
             </div>
           )}
           <div className="rail__footer"><Button type="tertiary" className="btn--lg" onClick={() => navigate("/home/deadlines")}>See timeline</Button></div>

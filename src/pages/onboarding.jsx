@@ -32,7 +32,8 @@ function StepHeader({ current }) {
           );
         })}
       </ol>
-      <Button type="tertiary" size="sm" onClick={() => { toast("Saved. Finish setting up from Home any time."); navigate("/home"); }}>Finish later</Button>
+      <Button type="tertiary" size="sm" className="step-header__later" onClick={() => { toast("Saved. Finish setting up from Home any time."); navigate("/home"); }}>Finish later</Button>
+      <p className="step-header__label t-body3 c-secondary" aria-hidden="true">Step {current} of {STEPS.length} · {STEPS[current - 1]?.[0]}</p>
     </header>
   );
 }

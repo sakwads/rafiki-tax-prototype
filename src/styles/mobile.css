@@ -228,3 +228,22 @@ button, a, [role="button"], input, select, textarea { touch-action: manipulation
   .tcard__top > * { min-width: 0; max-width: 100%; }
   .tcard__top .tabs { align-self: stretch; width: 100%; overflow-x: auto; }
 }
+
+/* Dialog buttons stack full width on phones, main action on top (as in the Android design) */
+@media (max-width: 720px) {
+  .modal__foot { flex-direction: column-reverse; align-items: stretch; gap: var(--rf-spacing-sm); }
+  .modal__foot .btn { width: 100%; justify-content: center; }
+  .pinentry__pad { gap: var(--rf-spacing-xs) var(--rf-spacing-lg); }
+}
+
+/* Onboarding header: logo + Finish later on one row, the stepper on its own row below */
+.step-header__label { display: none; }
+@media (max-width: 720px) {
+  .step-header { flex-wrap: wrap; row-gap: var(--rf-spacing-md); }
+  .step-header > :first-child { order: 1; }
+  .step-header__later { order: 2; margin-left: auto; }
+  .step-header .stepper { order: 3; flex: 1 1 100%; gap: var(--rf-spacing-sm); }
+  .step-header .step { gap: var(--rf-spacing-sm); }
+  .step-header .step__text, .step-header .step--current .step__text { display: none; }
+  .step-header__label { display: block; order: 4; flex: 1 1 100%; margin: calc(var(--rf-spacing-xs) * -1) 0 0; }
+}

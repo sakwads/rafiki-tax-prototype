@@ -137,7 +137,7 @@ export function DemoPanel() {
           <div className="demo__section">
             <p className="demo__label">Home</p>
             <div className="demo__seg">
-              {[["live", "Things to review"], ["all-clear", "All clear"]].map(([v, l]) => (
+              {[["live", "Things to review"], ["all-clear", "All clear"], ["fresh", "Fresh start"]].map(([v, l]) => (
                 <button key={v} aria-pressed={((db.get("home") || {}).scenario || "live") === v} onClick={() => { db.set("home", { scenario: v }); jump("/home"); }}>{l}</button>
               ))}
             </div>

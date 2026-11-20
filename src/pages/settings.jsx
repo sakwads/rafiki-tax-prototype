@@ -58,6 +58,96 @@ function Input({ value, onChange, label, readOnly, inputMode }) {
   return <div className={`input ${value ? "input--filled" : ""} ${readOnly ? "input--readonly" : ""} set-input`}><input className="input__control" aria-label={label} value={value} readOnly={readOnly} inputMode={inputMode} onChange={(e) => onChange && onChange(e.target.value)} /></div>;
 }
 
+
+/* ═════════ Delete data / delete account (shared with the Android design) ═════════ */
+function exportMyData() {
+  const rows = [["Date", "Supplier", "Reference", "Amount (KSh)", "Status"], ...db.collection("purchases").find({}).map((p) => [p.date, p.seller, p.invoiceNo || "", p.amount.toFixed(2), p.status])];
+  download("rafiki-my-data.csv", csvBlob(rows)); toast("Your data downloaded", "download", { tone: "success" });
+}
+// "Delete my data": you stay signed in and start fresh.
+function startFresh() {
+  db.staff.find({}).forEach((d) => db.staff.remove(d._id));
+  setM6({ sources: { mpesa: false, airtel: false, bank: false } });
+  db.set("m3", { scenario: "empty" }); db.set("m5", { scenario: "empty" }); db.set("home", { scenario: "fresh" });
+  navigate("/home"); toast("Your data was deleted. You can start again.", "circle-check");
+}
+// "Delete account": everything goes and you are signed out.
+function deleteAccount() {
+  db.reset(); session.signOut(); navigate("/signup"); toast("Your account was deleted.", "circle-check");
+}
+
+function PinEntry({ title = "Enter your app PIN", sub, onDone, onBack }) {
+  const [pin, setPin] = useState("");
+  const [err, setErr] = useState("");
+  const press = (d) => {
+    if (pin.length >= 4) return;
+    const next = pin + d; setPin(next); setErr("");
+    if (next.length === 4) {
+      if (next === (m6().appPin || "1234")) onDone();
+      else setTimeout(() => { setPin(""); setErr("That PIN is not right. Try again."); }, 200);
+    }
+  };
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"];
+  return (
+    <div className="pinentry">
+      <p className="t-h5 c-primary">{title}</p>
+      {sub && <p className="t-body2 c-secondary">{sub}</p>}
+      <div className="pinentry__dots" role="img" aria-label={`${pin.length} of 4 digits entered`}>
+        {[0, 1, 2, 3].map((i) => <span key={i} className={`pinentry__dot ${i < pin.length ? "pinentry__dot--on" : ""}`} />)}
+      </div>
+      <p className="t-body3 pinentry__err" role="alert">{err}</p>
+      <div className="pinentry__pad">
+        {keys.map((k, i) => k === "" ? <span key={i} /> : k === "back"
+          ? <button key={i} type="button" className="pinentry__key" aria-label="Delete last digit" onClick={() => setPin(pin.slice(0, -1))}><Icon name="backspace" size={24} /></button>
+          : <button key={i} type="button" className="pinentry__key t-h4" onClick={() => press(k)}>{k}</button>)}
+      </div>
+      <button type="button" className="pinentry__link t-medium2" onClick={() => toast("In the prototype the app PIN is 1234", "info-circle")}>Forgot PIN?</button>
+      {onBack && <Button type="tertiary" onClick={onBack}>Back</Button>}
+    </div>
+  );
+}
+
+function DeleteModal({ account, onClose }) {
+  const u = session.user();
+  const b = db.businesses.get(u?.businessId || "");
+  const name = b?.name || "your business name";
+  const [typed, setTyped] = useState("");
+  const [step, setStep] = useState("confirm");
+  if (step === "pin") {
+    return (
+      <Modal title="Delete account" icon="trash" onClose={onClose}>
+        <PinEntry sub="To delete your account" onDone={deleteAccount} onBack={() => setStep("confirm")} />
+      </Modal>
+    );
+  }
+  const ok = typed.trim() === (b?.name || "");
+  return (
+    <Modal title={account ? "Delete account" : "Delete my data"} icon="alert-triangle" onClose={onClose}
+      footer={<>
+        <Button type="secondary" onClick={exportMyData}>Export my data first</Button>
+        <Button type="danger" disabled={!ok} onClick={() => (account ? setStep("pin") : startFresh())}>{account ? "Delete account" : "Delete everything"}</Button>
+      </>}>
+      {account
+        ? <Alert tone="danger" title="This deletes your account">Your profile, sign-in and all business data are removed, and you are signed out on every device. eTIMS invoices stay with KRA.</Alert>
+        : <Alert tone="danger" title="This can't be undone">Your purchases, invoices, evidence, staff and connected sources are removed from Rafiki. You stay signed in and start fresh. eTIMS invoices stay with KRA.</Alert>}
+      <TextField label={`Type ${name} to confirm`} value={typed} onChange={setTyped} />
+    </Modal>
+  );
+}
+
+function AccountCard() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Card title="Account" sub="Delete your account and everything with it.">
+      <ul className="set-list set-list--plain">
+        <li className="set-row"><span><span className="t-semi2 c-primary">Delete account</span><span className="t-body3 c-secondary">Removes your data and profile and signs you out.</span></span>
+          <Button type="danger" size="sm" onClick={() => setOpen(true)}>Delete account</Button></li>
+      </ul>
+      {open && <DeleteModal account onClose={() => setOpen(false)} />}
+    </Card>
+  );
+}
+
 /* ═════════ Profile ═════════ */
 const P_TABS = [["details", tabLabel("user", "Personal details")], ["language", tabLabel("language", "Language")], ["notifications", tabLabel("bell", "Notifications")],
   ["security", tabLabel("lock", "Security")], ["appearance", tabLabel("palette", "Appearance")]];
@@ -69,7 +159,7 @@ export function ProfilePage() {
   return (
     <div className="page set-page">
       <Tabs label="Profile" value={tab} onChange={go} tabs={P_TABS} />
-      {tab === "details" && <PersonalDetails />}
+      {tab === "details" && <><PersonalDetails /><AccountCard /></>}
       {tab === "language" && <LanguageCard />}
       {tab === "notifications" && <NotificationsCard />}
       {tab === "security" && <SecurityCard />}
@@ -334,12 +424,8 @@ function ConnectedCard() {
 function PrivacyCard() {
   const [details, setDetails] = useState(false);
   const [del, setDel] = useState(false);
-  const [typed, setTyped] = useState("");
   const b = db.businesses.get(session.user()?.businessId || "");
-  const exportData = () => {
-    const rows = [["Date", "Supplier", "Reference", "Amount (KSh)", "Status"], ...db.collection("purchases").find({}).map((p) => [p.date, p.seller, p.invoiceNo || "", p.amount.toFixed(2), p.status])];
-    download("rafiki-my-data.csv", csvBlob(rows)); toast("Your data downloaded", "download", { tone: "success" });
-  };
+  const exportData = exportMyData;
   return (
     <Card title="Data and privacy" sub="What Rafiki can see and what you can take with you.">
       <ul className="set-list set-list--plain">
@@ -357,13 +443,7 @@ function PrivacyCard() {
           <p className="t-body3 c-secondary">Rafiki keeps this to build your evidence. Disconnect a source in Connected data to stop it being read.</p>
         </Modal>
       )}
-      {del && (
-        <Modal title="Delete all your data?" icon="alert-triangle" onClose={() => setDel(false)}
-          footer={<><Button type="secondary" onClick={() => setDel(false)}>Keep my data</Button><Button type="danger" disabled={typed.trim() !== (b?.name || "")} onClick={() => { db.reset(); session.signOut(); navigate("/signup"); toast("Your data was deleted"); }}>Delete everything</Button></>}>
-          <Alert tone="danger" title="This can't be undone">Your purchases, invoices, evidence and staff are removed. Download your data first if you need it.</Alert>
-          <TextField label={`Type ${b?.name || "your business name"} to confirm`} value={typed} onChange={setTyped} />
-        </Modal>
-      )}
+      {del && <DeleteModal onClose={() => setDel(false)} />}
     </Card>
   );
 }

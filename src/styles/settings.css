@@ -88,3 +88,14 @@
 .avatar--md { width: 40px; height: 40px; font-size: 12px; flex-shrink: 0; }
 .set-access { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--rf-spacing-lg); }
 .set-access .set-row { padding: 0; }
+
+/* App PIN entry (delete account) */
+.pinentry { display: flex; flex-direction: column; align-items: center; gap: var(--rf-spacing-md); text-align: center; padding: var(--rf-spacing-md) 0; }
+.pinentry__dots { display: flex; gap: var(--rf-spacing-lg); }
+.pinentry__dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--rf-border-strong); box-sizing: border-box; }
+.pinentry__dot--on { background: var(--rf-text-primary); border-color: var(--rf-text-primary); }
+.pinentry__err { min-height: 20px; color: var(--rf-text-error); }
+.pinentry__pad { display: grid; grid-template-columns: repeat(3, 72px); gap: var(--rf-spacing-sm) var(--rf-spacing-lg); justify-content: center; }
+.pinentry__key { width: 72px; height: 64px; border-radius: var(--rf-radius-pill); display: inline-flex; align-items: center; justify-content: center; color: var(--rf-text-primary); }
+.pinentry__key:hover { background: color-mix(in srgb, var(--rf-text-primary) 8%, transparent); }
+.pinentry__link { color: var(--rf-text-link); text-decoration: none; padding: var(--rf-spacing-sm); }

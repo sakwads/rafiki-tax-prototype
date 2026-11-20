@@ -1,6 +1,6 @@
 /* Rafiki Tax prototype service worker. build.mjs fills in VERSION and PRECACHE.
    Offline-first for the app shell; the data lives in localStorage so nothing else is needed. */
-const VERSION = "d15068065a";
+const VERSION = "1b610efdd4";
 const PRECACHE = [
   "./",
   "./assets/app.css",
